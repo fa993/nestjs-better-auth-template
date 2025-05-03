@@ -1,74 +1,78 @@
-## NestJS with Better Auth Example
+# NestJS with Better Auth Example
 
-This project demonstrates how to integrate [Better Auth](https://www.google.com/search?q=https://better-auth.dev/) into a NestJS application, providing a streamlined and flexible authentication solution. Special thanks to [ThallesP](https://github.com/ThallesP) for their excellent work on Better Auth\!
+This project demonstrates how to integrate [Better Auth](https://better-auth.dev/) into a NestJS application for streamlined and flexible authentication.
 
-**Project Information:**
+**Special thanks to [ThallesP](https://github.com/ThallesP) for their work on Better Auth!**
 
-  * **Framework:** NestJS v11
-  * **HTTP Framework:** Express v5 (integrated within NestJS)
-  * **Database Adapter:** MongoDB
+---
 
-**Prerequisites:**
+## 🧰 Project Information
 
-Before you begin, ensure you have the following installed:
+- **Framework:** NestJS v11  
+- **HTTP Framework:** Express v5 (integrated in NestJS)  
+- **Database Adapter:** MongoDB  
 
-  * **Node.js:** (Make sure it meets the requirements of NestJS v11)
-  * **npm:** (Usually installed with Node.js)
-  * **MongoDB:** You need a running MongoDB instance.
+---
 
-**Project Setup:**
+## ✅ Prerequisites
 
-1.  **Clone the repository** (if you haven't already).
+Ensure the following are installed:
 
-2.  **Install dependencies:**
+- **Node.js** (compatible with NestJS v11)
+- **npm** (comes with Node.js)
+- **MongoDB** (running instance required)
 
-    ```bash
-    $ npm i
-    ```
+---
 
-3.  **Create and configure the `.env` file:**
+## ⚙️ Project Setup
 
-    Create a `.env` file in the root of your project and populate it with the following environment variables:
+1. **Clone the repository**
 
-    ```sh
-    MONGODB_URI="YOUR_MONGODB_CONNECTION_STRING"
-    GITHUB_CLIENT_ID="YOUR_GITHUB_APPLICATION_CLIENT_ID"
-    GITHUB_CLIENT_SECRET="YOUR_GITHUB_APPLICATION_CLIENT_SECRET"
-    GOOGLE_CLIENT_ID="YOUR_GOOGLE_APPLICATION_CLIENT_ID"
-    GOOGLE_CLIENT_SECRET="YOUR_GOOGLE_APPLICATION_CLIENT_SECRET"
-    TRUSTED_ORIGINS="http://localhost:3001" # URL of your frontend application
-    ```
+2. **Install dependencies**
 
-    **Important:** Replace the placeholder values with your actual MongoDB connection string and OAuth application credentials. The `TRUSTED_ORIGINS` should list the URLs from which your frontend application will be making requests.
+   ```bash
+   npm install
+   ```
 
-**Running the Application:**
+3. **Create and configure the `.env` file**
 
-You can run the NestJS application in different modes:
+   Create a `.env` file in the project root with:
 
-  * **Development mode (with hot-reloading):**
+   ```env
+   MONGODB_URI="YOUR_MONGODB_CONNECTION_STRING"
+   GITHUB_CLIENT_ID="YOUR_GITHUB_APPLICATION_CLIENT_ID"
+   GITHUB_CLIENT_SECRET="YOUR_GITHUB_APPLICATION_CLIENT_SECRET"
+   GOOGLE_CLIENT_ID="YOUR_GOOGLE_APPLICATION_CLIENT_ID"
+   GOOGLE_CLIENT_SECRET="YOUR_GOOGLE_APPLICATION_CLIENT_SECRET"
+   TRUSTED_ORIGINS="http://localhost:3001"
+   ```
 
-    ```bash
-    $ npm run start:dev
-    ```
+   > Replace placeholders with your actual credentials and frontend origin.
 
-    This will automatically rebuild and restart the server whenever you make changes to the code.
+---
 
-  * **Production mode:**
+## 🚀 Running the Application
 
-    ```bash
-    $ npm run start
-    ```
+- **Development Mode**
 
-    This command compiles the application and starts the server.
+  ```bash
+  npm run start:dev
+  ```
 
-**Key Configuration Details:**
+- **Production Mode**
 
-  * **Better Auth Instance:** The core configuration for Better Auth is located in `src/auth/auth.module.ts` around line 172. This is where you initialize Better Auth and register your desired authentication providers.
+  ```bash
+  npm run start
+  ```
 
-```typescript
- // src/auth/auth.module.ts
+---
+
+## 🔐 Authentication Configuration
+
+The core Better Auth config is in `src/auth/auth.module.ts`:
+
+```ts
 static forRoot(options: AuthModuleOptions = {}) {
-  // ...
   const auth = betterAuth({
     trustedOrigins,
     database: mongodbAdapter(db),
@@ -96,12 +100,12 @@ static forRoot(options: AuthModuleOptions = {}) {
     },
     socialProviders: {
       github: {
-        clientId: process.env.GITHUB_CLIENT_ID as string,
-        clientSecret: process.env.GITHUB_CLIENT_SECRET as string,
+        clientId: process.env.GITHUB_CLIENT_ID!,
+        clientSecret: process.env.GITHUB_CLIENT_SECRET!,
       },
       google: {
-        clientId: process.env.GOOGLE_CLIENT_ID as string,
-        clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
+        clientId: process.env.GOOGLE_CLIENT_ID!,
+        clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
       },
     },
   });
@@ -110,86 +114,54 @@ static forRoot(options: AuthModuleOptions = {}) {
 }
 ```
 
-  As you can see, this example configures the following authentication providers:
+**Supported Providers:**
 
-    * **Google:** For Google OAuth-based login.
-    * **Github:** For GitHub OAuth-based login.
-    * **Credentials:** For traditional email/password login.
+- Google
+- GitHub
+- Email/Password
 
-  You can easily add more providers as needed by importing them from `better-auth/providers/*` and including them in the `providers` array.
+Add more providers via `better-auth/providers/*`.
 
-* **Auth Guard Usage:** Check the `app.controller.ts` file to see how to use the Better Auth guard to protect your routes.
+---
 
-```typescript
-import { Body, Controller, Get, Post, UseGuards } from '@nestjs/common';
-import { AppService } from './app.service';
-import { AuthGuard, UserSession } from './auth/auth.guard';
-import { Optional, Public, Session } from './auth/decorators';
-import { UserId } from './auth/user-id.decorator';
+## 🛡️ Protecting Routes
 
+See `app.controller.ts` for usage of the `AuthGuard`:
+
+```ts
 @Controller()
 @UseGuards(AuthGuard)
 export class AppController {
   constructor(private readonly appService: AppService) {}
 
-  /* 
-    Protected route that requires authentication
-    The session and userId are automatically injected by the AuthGuard
-  */
   @Get('/cats')
-  getCats(
-    @Session() session: UserSession,
-    @UserId() userId: string,
-    @Body() body: any,
-  ): { message: string } {
-    console.log({
-      session,
-      userId,
-      body,
-    });
-
+  getCats(@Session() session: UserSession, @UserId() userId: string, @Body() body: any) {
+    console.log({ session, userId, body });
     return { message: this.appService.getCat() };
   }
 
-  /* 
-   Public route that does not require authentication
-  */
   @Post('/cats')
   @Public()
-  sayHello(
-    @Session() session: UserSession,
-    @UserId() userId: string,
-    @Body() body: any,
-  ): { message: string } {
-    console.log({
-      session,
-      userId,
-      body,
-    });
-
+  sayHello(@Session() session: UserSession, @UserId() userId: string, @Body() body: any) {
+    console.log({ session, userId, body });
     return { message: this.appService.getCat() };
   }
 }
-
 ```
 
-The `@UseGuards(AuthGuard)` decorator ensures that only authenticated users can access the `/api/protected` route. The `@Session()` decorator allows you to access the user's session information.
+---
 
-* **Global API Prefix:** This project uses a global prefix of `api` for all routes. You can find this configuration in the `src/main.ts` file:
+## 🌐 Global API Prefix
 
-```typescript
-// src/main.ts
-import { NestFactory } from '@nestjs/core';
-import { AppModule } from './app.module';
-import { NestExpressApplication } from '@nestjs/platform-express';
+Set in `src/main.ts`:
 
+```ts
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false,
   });
-  app.set('query parser', 'extended');
 
-  const trustedOrigins = (process.env.TRUSTED_ORIGINS as string).split(',');
+  const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(',') || [];
 
   app.enableCors({
     origin: trustedOrigins,
@@ -200,56 +172,182 @@ async function bootstrap() {
 
   await app.listen(process.env.PORT ?? 3000);
 }
-bootstrap();
 ```
-**Frontend Integration (Next.js Example):**
 
-When integrating with your frontend application (e.g., a Next.js project), you'll need to configure the Better Auth client. Here's an example of how to do this using `@better-auth/react`:
+---
 
-```typescript
-// Your Next.js auth client setup (e.g., in a utils/auth.ts file)
+## 🧩 Frontend Integration (Next.js)
 
+Use `@better-auth/react` to connect your frontend:
+
+```ts
 import { createAuthClient } from 'better-auth/react';
 import { inferAdditionalFields } from 'better-auth/client/plugins';
 
 export const { signIn, signUp, signOut, useSession } = createAuthClient({
-  baseURL: "http://localhost:3000", // Backend URL (NestJS)
+  baseURL: "http://localhost:3000",
   plugins: [
     inferAdditionalFields({
       user: {
-        surname: {
-          type: 'string',
-        },
-        role: {
-          type: 'string',
-          nullable: true,
-        },
+        surname: { type: 'string' },
+        role: { type: 'string', nullable: true },
       },
     }),
   ],
 });
 ```
 
-**Important:**
+> Do **not** include `/api` in the baseURL.
 
-  * Ensure that the `baseURL` in your frontend `createAuthClient` configuration points to your NestJS backend URL, including any global prefixes you have set (in this case, `/api`).
-  * **Server Callback URLs:** You **must** add the appropriate callback URLs to your Better Auth client configurations in your frontend project. These URLs are where the user will be redirected after successful authentication with social providers (like Google and GitHub). You'll typically configure these in your OAuth application settings on the respective provider's developer portals.
+---
 
-**Sign-in with Callback URL Example:**
+## 🔁 Redirect After Sign-in
 
-When performing actions like email/password sign-in or social login from your frontend, you can provide a `callbackURL` to specify where the user should be redirected after the authentication process. If you don't provide a `callbackURL`, the user will be redirected to the backend URL by default.
+```ts
+const { error, data } = await signIn.email({
+  email,
+  password,
+  rememberMe,
+  callbackURL: "http://localhost:3001/dashboard",
+});
+```
 
-```typescript
-// Example of email sign-in from your Next.js component
+---
 
-import { signIn } from '@/lib/auth-client'; // Assuming your auth client is in utils/auth.ts
+## 🔒 Session Handling in Next.js
 
-async function handleSignIn(email: string, password: string, rememberMe: boolean) {
-  const { error,data } = await signIn.email({
-    email,
-    password,
-    rememberMe,
-    callbackURL: "http://localhost:3001/dashboard", // Example frontend callback URL. Redirects to this URL after sign-in.
-  });
+### Middleware (`middleware.ts`)
+
+**Option 1: Check cookies**
+
+```ts
+import { getSessionCookie } from 'better-auth/cookies';
+
+export async function middleware(request: NextRequest) {
+  const cookies = getSessionCookie(request);
+  if (!cookies) {
+    return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+  return NextResponse.next();
 }
 ```
+
+**Option 2: Check session with API**
+
+```ts
+export async function middleware(request: NextRequest) {
+  const res = await fetch("http://localhost:3001/api/auth/get-session", {
+    headers: {
+      cookie: request.headers.get('cookie') || '',
+    },
+  });
+
+  const session = await res.json();
+  if (!session) {
+    return NextResponse.redirect(new URL('/sign-in', request.url));
+  }
+
+  return NextResponse.next();
+}
+```
+
+---
+
+### Server-side Rendering (`page.tsx`)
+
+**Require Session**
+
+```ts
+export default async function Page() {
+  const cookie = headers().get('cookie');
+
+  const res = await fetch("http://localhost:3001/api/auth/get-session", {
+    headers: { cookie: cookie || '' },
+  });
+
+  const session = await res.json();
+  if (!session) {
+    return redirect('/sign-in');
+  }
+
+  return (
+    <div>
+      <h1>Protected Page</h1>
+    </div>
+  );
+}
+```
+
+**Fetch Data with Session**
+
+```ts
+export default async function Page() {
+  const res = await fetch("http://localhost:3001/api/auth/foo", {
+    headers: await headers(),
+    cache: 'no-store',
+  });
+
+  const data = await res.json();
+
+  return (
+    <div>
+      <h1>Protected Page</h1>
+      <pre>{JSON.stringify(data, null, 2)}</pre>
+    </div>
+  );
+}
+```
+
+---
+
+### Client Component Example
+
+```ts
+'use client';
+
+import { useSession } from '@/lib/auth-client';
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
+
+export default function Page() {
+  const { data: session } = useSession();
+  const [data, setData] = useState(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    if (!session) {
+      router.push('/sign-in');
+    }
+  }, [session, router]);
+
+  useEffect(() => {
+    async function fetchData() {
+      const res = await fetch('http://localhost:3001/api/auth/foo', {
+        credentials: 'include',
+      });
+      const result = await res.json();
+      setData(result);
+    }
+
+    if (session) {
+      fetchData();
+    }
+  }, [session]);
+
+  return (
+    <div>
+      <h1>Protected Page</h1>
+      {data && <pre>{JSON.stringify(data, null, 2)}</pre>}
+    </div>
+  );
+}
+```
+
+---
+
+## 🧪 Tips
+
+- Use `.env` variables for all sensitive data.
+- Ensure CORS is properly configured.
+- Add the correct callback URLs in your OAuth provider settings.
+- Don’t forget to include credentials when making authenticated fetch requests.

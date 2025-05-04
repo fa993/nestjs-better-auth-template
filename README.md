@@ -236,7 +236,7 @@ export async function middleware(request: NextRequest) {
 
 ```ts
 export async function middleware(request: NextRequest) {
-  const res = await fetch("http://localhost:3001/api/auth/get-session", {
+  const res = await fetch("http://localhost:3000/api/auth/get-session", {
     headers: {
       cookie: request.headers.get('cookie') || '',
     },
@@ -261,7 +261,7 @@ export async function middleware(request: NextRequest) {
 export default async function Page() {
   const cookie = headers().get('cookie');
 
-  const res = await fetch("http://localhost:3001/api/auth/get-session", {
+  const res = await fetch("http://localhost:3000/api/auth/get-session", {
     headers: { cookie: cookie || '' },
   });
 
@@ -282,7 +282,7 @@ export default async function Page() {
 
 ```ts
 export default async function Page() {
-  const res = await fetch("http://localhost:3001/api/auth/foo", {
+  const res = await fetch("http://localhost:3000/api/auth/foo", {
     headers: await headers(),
     cache: 'no-store',
   });
@@ -322,7 +322,7 @@ export default function Page() {
 
   useEffect(() => {
     async function fetchData() {
-      const res = await fetch('http://localhost:3001/api/auth/foo', {
+      const res = await fetch('http://localhost:3000/api/auth/foo', {
         credentials: 'include',
       });
       const result = await res.json();

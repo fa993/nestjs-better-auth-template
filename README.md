@@ -124,6 +124,46 @@ Add more providers via `better-auth/providers/*`.
 
 ---
 
+## 🌐 Cross-Domain Session Configuration
+
+The application supports cross-domain cookies for production environments, allowing session sharing across subdomains. This is configured in `src/auth/auth.module.ts`:
+
+```ts
+...(isProd
+  ? {
+      advanced: {
+        crossSubDomainCookies: {
+          enabled: true,
+          domain: process.env.CROSS_DOMAIN_ORIGIN, // Domain with a leading period
+        },
+        defaultCookieAttributes: {
+          secure: true,
+          httpOnly: true,
+          sameSite: 'none', // Allows CORS-based cookie sharing across subdomains
+          partitioned: true, // New browser standards will mandate this for foreign cookies
+        },
+      },
+    }
+  : {})
+```
+
+To enable cross-domain session sharing:
+
+1. Add to your `.env` file:
+   ```env
+   CROSS_DOMAIN_ORIGIN=".yourdomain.com"  # Include the leading period
+   ```
+
+2. Ensure your frontend and API are on subdomains of the same parent domain:
+   - API: `api.yourdomain.com`
+   - Frontend: `app.yourdomain.com`
+
+This configuration enables secure sharing of authentication cookies between your subdomains, maintaining session continuity for users navigating between different parts of your application.
+
+For more details, refer to [Better Auth Cookies Documentation](https://www.better-auth.com/docs/concepts/cookies#cross-subdomain-cookies).
+
+---
+
 ## 🛡️ Protecting Routes
 
 See `app.controller.ts` for usage of the `AuthGuard`:

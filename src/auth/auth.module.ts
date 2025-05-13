@@ -43,6 +43,8 @@ const HOOKS = [
   { metadataKey: AFTER_HOOK_KEY, hookType: 'after' as const },
 ];
 
+const isProd = process.env.NODE_ENV === 'production';
+
 /**
  * NestJS module that integrates the Auth library with NestJS applications.
  * Provides authentication middleware, hooks, and exception handling.
@@ -204,6 +206,23 @@ export class AuthModule implements NestModule, OnModuleInit {
           clientSecret: process.env.GOOGLE_CLIENT_SECRET as string,
         },
       },
+      // cross domain cookies
+      ...(isProd
+        ? {
+            advanced: {
+              crossSubDomainCookies: {
+                enabled: true,
+                domain: process.env.CROSS_DOMAIN_ORIGIN, // Domain with a leading period
+              },
+              defaultCookieAttributes: {
+                secure: true,
+                httpOnly: true,
+                sameSite: 'none', // Allows CORS-based cookie sharing across subdomains
+                partitioned: true, // New browser standards will mandate this for foreign cookies
+              },
+            },
+          }
+        : {}),
     });
 
     const providers: Provider[] = [

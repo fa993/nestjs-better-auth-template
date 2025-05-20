@@ -323,7 +323,9 @@ export default async function Page() {
 ```ts
 export default async function Page() {
   const res = await fetch("http://localhost:3000/api/auth/foo", {
-    headers: await headers(),
+    headers: {
+      cookie: (await headers()).get('cookie') || '',
+    },
     cache: 'no-store',
   });
 

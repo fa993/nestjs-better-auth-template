@@ -248,9 +248,11 @@ const { error, data } = await signIn.email({
   email,
   password,
   rememberMe,
-  callbackURL: "http://localhost:3001/dashboard",
+  callbackURL: "http://localhost:3001/dashboard", // Frontend URL, not API
 });
 ```
+
+> callbackURL should point to the frontend URL where you want to redirect after sign-in.
 
 ---
 
@@ -318,13 +320,13 @@ export default async function Page() {
 }
 ```
 
-**Fetch Data with Session**
+**Fetch Data from Protected API**
 
 ```ts
 export default async function Page() {
-  const res = await fetch("http://localhost:3000/api/auth/foo", {
+  const res = await fetch("http://localhost:3000/api/foo", {
     headers: {
-      cookie: (await headers()).get('cookie') || '',
+      cookie: (await headers()).get('cookie') || '', // Include cookies for session
     },
     cache: 'no-store',
   });
@@ -365,7 +367,7 @@ export default function Page() {
   useEffect(() => {
     async function fetchData() {
       const res = await fetch('http://localhost:3000/api/auth/foo', {
-        credentials: 'include',
+        credentials: 'include', // Include cookies for session
       });
       const result = await res.json();
       setData(result);

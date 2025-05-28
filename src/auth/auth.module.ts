@@ -118,7 +118,7 @@ export class AuthModule implements NestModule, OnModuleInit {
 
     // Ensure basePath starts with /
     if (!basePath.startsWith('/')) {
-      basePath = '/' + basePath;
+      basePath = `/${basePath}`;
     }
 
     // Ensure basePath doesn't end with /

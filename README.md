@@ -6,6 +6,28 @@ This project demonstrates how to integrate [Better Auth](https://better-auth.dev
 
 ---
 
+## 📑 Table of Contents
+
+- [NestJS with Better Auth Example](#nestjs-with-better-auth-example)
+  - [📑 Table of Contents](#-table-of-contents)
+  - [🧰 Project Information](#-project-information)
+  - [✅ Prerequisites](#-prerequisites)
+  - [⚙️ Project Setup](#️-project-setup)
+  - [🚀 Running the Application](#-running-the-application)
+  - [🔐 Authentication Configuration](#-authentication-configuration)
+  - [🌐 Cross-Domain Session Configuration](#-cross-domain-session-configuration)
+  - [🛡️ Protecting Routes](#️-protecting-routes)
+  - [🌐 Global API Prefix](#-global-api-prefix)
+  - [🧩 Frontend Integration (Next.js)](#-frontend-integration-nextjs)
+  - [🔁 Redirect After Sign-in](#-redirect-after-sign-in)
+  - [🔒 Session Handling in Next.js](#-session-handling-in-nextjs)
+    - [Middleware (`middleware.ts`)](#middleware-middlewarets)
+    - [Server-side Rendering (`page.tsx`)](#server-side-rendering-pagetsx)
+    - [Client Component Example](#client-component-example)
+  - [🧪 Tips](#-tips)
+
+---
+
 ## 🧰 Project Information
 
 - **Framework:** NestJS v11  
@@ -225,7 +247,7 @@ import { createAuthClient } from 'better-auth/react';
 import { inferAdditionalFields } from 'better-auth/client/plugins';
 
 export const { signIn, signUp, signOut, useSession } = createAuthClient({
-  baseURL: "http://localhost:3000",
+  baseURL: "http://localhost:3000", // API base URL
   plugins: [
     inferAdditionalFields({
       user: {

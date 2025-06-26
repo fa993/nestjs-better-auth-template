@@ -222,8 +222,9 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule, {
     bodyParser: false,
   });
+  app.set('query parser', 'extended');
 
-  const trustedOrigins = process.env.TRUSTED_ORIGINS?.split(',') || [];
+  const trustedOrigins = (process.env.TRUSTED_ORIGINS as string).split(',');
 
   app.enableCors({
     origin: trustedOrigins,
